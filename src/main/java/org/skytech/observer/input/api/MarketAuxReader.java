@@ -1,4 +1,4 @@
-package org.skytech.observer.input;
+package org.skytech.observer.input.api;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,36 +11,33 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
+import org.skytech.observer.input.service.JSONFromUrlScrapper;
 import org.skytech.observer.input.model.InputDataNews;
 
 public class MarketAuxReader {
 
-//    String strJson =
-    public void init() throws IOException, JSONException, ParseException {
-        JSONObject jsonObject = JSONFromUrlScrapper.readJsonFromUrl("https://api.marketaux.com/v1/news/all?symbols=AAPL&filter_entities=true&language=en&api_token=8z3QJfJCmJgl2tnq1B9pWWHuSGEsWnFzjfigDyUL");
-        parseJsonToNewsObject(jsonObject);
-    }
-
-    public void parseJsonToNewsObject(JSONObject jsonObject) throws JSONException, IOException, ParseException {
-        ArrayList<InputDataNews> news = new ArrayList<InputDataNews>();
+    public List<InputDataNews> parseJsonToNewsObject(JSONObject jsonObject, String symbolName) throws JSONException, IOException, ParseException {
+        List<InputDataNews> inputDataNewsList = new ArrayList<InputDataNews>();
         JSONArray jsonArrayData = jsonObject.getJSONArray("data");
         for(int i = 0; i < jsonArrayData.length(); i++){
             JSONObject jsonData = jsonArrayData.getJSONObject(i);
             System.out.println(jsonData.toString());
 
             String dateStr = jsonData.getString("published_at");
-            dateStr = dateStr.replaceFirst("T", " ");
+//            dateStr = dateStr.replaceFirst("T", " ");
             dateStr = dateStr.replaceFirst("Z", "");
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSSSSS", Locale.ENGLISH);
-            Date date = formatter.parse(dateStr);
+//            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSSSSS", Locale.ENGLISH);
+            DateTime date = DateTime.parse(dateStr);
 
-            String symbol = "AAPL"; // will get from...
+            String symbol = jsonData.getString(symbolName); // will get from...
             String description = jsonData.getString("description");
             String source = jsonData.getString("source");
             String headTitle = jsonData.getString("title");
@@ -49,9 +46,11 @@ public class MarketAuxReader {
             String[] text = Jsoup.parse(Jsoup.connect(url).get().text()).text().split(" ");
 
             InputDataNews inputNews = new InputDataNews(symbol, description, date, source, "акция", text);
-            System.out.println("Успех!");
+
+            inputDataNewsList.add(inputNews);
             System.out.println(inputNews.toString());
         }
+        return inputDataNewsList;
     }
 
     public JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
@@ -73,5 +72,25 @@ public class MarketAuxReader {
             stringBuilder.append((char) cursorPoint);
         }
         return stringBuilder.toString();
+    }
+
+    public List<InputDataNews> getInputDataNewsListByDate(DateTime date, String name) {
+        List<InputDataNews> inputDataNewsList = null;
+        try {
+        String token = "8z3QJfJCmJgl2tnq1B9pWWHuSGEsWnFzjfigDyUL";
+        String dateStr = date.toString().substring(0, 10);
+        String url = "https://api.marketaux.com/v1/news/all?symbols="+name
+                + dateStr + ""
+                + "&filter_entities=true&language=en&api_token=" + token;
+        JSONObject JSONResponse = readJsonFromUrl(url);
+        inputDataNewsList = parseJsonToNewsObject(JSONResponse, name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return inputDataNewsList;
     }
 }

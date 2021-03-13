@@ -1,34 +1,51 @@
 package org.skytech.observer;
 
-import org.json.JSONException;
-import org.skytech.observer.console.PerceptronsManager;
-import org.skytech.observer.input.MarketAuxReader;
-import org.skytech.observer.input.MarketStackReader;
+import org.joda.time.DateTime;
+import org.skytech.observer.console.MainConsole;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
-import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 // @SpringBootApplication
 public class Application {
     public static void main(String[] args) throws SQLException {
-     //   SpringApplication.run(Application.class, args);
-        System.out.println("I will try and try...");
-//        MarketAuxReader marketAuxReader = new MarketAuxReader();
-        MarketStackReader marketStackReader = new MarketStackReader();
+        System.out.println("Step by step... not a whole project, but - a piece... ");
+        MainConsole mainConsole = new MainConsole();
+        mainConsole.consoleListen();
+    }
+
+    static private int getTotalDayToLoadCount() throws Exception {
+        long dateBegin = consoleListenDateTime("YYYY-MM-dd").getMillis();
+        long datePlannedToFill = consoleListenDateTime("YYYY-MM-dd").getMillis();
+        long dateCompare = datePlannedToFill - dateBegin;
+        long days = dateCompare / 1000 / 60 / 60 / 24;
+        return (int)days;
+    }
+
+    static private DateTime consoleListenDateTime(String message) throws Exception{
+        System.out.println(message);
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String s = "";
+        DateTime date;
         try {
-            marketStackReader.init();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+            s = br.readLine();
+            if (s.equals("")) {
+                System.out.println("Отмена");
+            } else if (s.toCharArray().length >= 100) {
+                System.err.println("Ошибка: текст должен иметь менее 100 символов");
+            } else {
+//                SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd HH:MM:SS+ZZZZZ", Locale.ENGLISH);
+                date = DateTime.parse(s);
+                return date;
+            }
+        } catch (Exception e) {
+            System.err.println("Произошла ошибка при попытке ввода");
             e.printStackTrace();
         }
-
-
-        // MarketAuxReader
-//        PerceptronsManager perceptronsManager = new PerceptronsManager();
-//        perceptronsManager.consoleListen();
+        throw new IOException();
     }
 }

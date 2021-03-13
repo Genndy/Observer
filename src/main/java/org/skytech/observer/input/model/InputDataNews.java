@@ -1,6 +1,8 @@
 package org.skytech.observer.input.model;
 
 
+import org.joda.time.DateTime;
+
 import java.util.Date;
 
 public class InputDataNews extends InputData {
@@ -12,7 +14,7 @@ public class InputDataNews extends InputData {
     private String lang;
     private String symbol;
 
-    public InputDataNews(String symbol, String description, Date date, String source, String type, String[] text){
+    public InputDataNews(String symbol, String description, DateTime date, String source, String type, String[] text){
         this.symbol = symbol;
         super.date = date;
         this.text = text;

@@ -1,7 +1,6 @@
 package org.skytech.observer.dao;
 
 import org.skytech.observer.dao.services.AbstractConnectionController;
-import org.skytech.observer.input.model.InputDataPrice;
 import org.skytech.observer.input.model.InputSymbol;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,21 +10,17 @@ import java.util.List;
 
 public class InputSymbolsDAO extends AbstractConnectionController {
     public InputSymbolsDAO() throws SQLException {
-        String sql = "CREATE TABLE IF NOT EXISTS inputSymbol(\n" +
+        String sqlCreate = "CREATE TABLE IF NOT EXISTS inputSymbol(\n" +
                 "        name varchar(100),\n" +
+                "        version real,\n" +
+                "        status int,\n" +
                 "        newsDataCount int,\n" +
-                "        tableNameNews varchar(100),\n" +
-                "        savedNewsBeginsDate varchar(16),\n" +
-                "        savedNewsEndsDate varchar(16),\n" +
-                "        newsPlannedToFillDate varchar(16),\n" +
                 "        pricesDataCount int,\n" +
-                "        tableNamePrices varchar(100),\n" +
-                "        savedPricesBeginsDate varchar(16),\n" +
-                "        savedPricesEndsDate varchar(16),\n" +
-                "        newsPricesToFillDate varchar(16),\n" +
-                "        status int\n" +
-                ");";
-        PreparedStatement state = getPreparedStatement(sql);
+                "        dateBegin varchar(16),\n" +
+                "        datePlannedToFillDate varchar(16),\n" +
+                "        dateEndsSavedNews varchar(16),\n" +
+                "        dateEndsPlannedToFillDate varchar(16));";
+        PreparedStatement state = getPreparedStatement(sqlCreate);
         state.execute();
     }
 
@@ -36,7 +31,7 @@ public class InputSymbolsDAO extends AbstractConnectionController {
             PreparedStatement state = getPreparedStatement(sql);
             ResultSet resultSet = state.getResultSet();
             for(int i = 0; i < resultSet.getFetchSize(); i++){
-                InputSymbol symbol = new InputSymbol.InputSymbolBuilder().setName("").build();
+//                InputSymbol symbol = new InputSymbol.builder().setName("").build();
             }
         }catch(SQLException e) {
             System.err.println("Ошибка при попытке достать данные symbols с sqlite");
@@ -46,13 +41,31 @@ public class InputSymbolsDAO extends AbstractConnectionController {
         return null;
     }
 
-    public void addInputPriceDAO(InputSymbol inputSymbol){ //
+    public void addInputSymbolDAO(InputSymbol inputSymbol){ //
         try {
             String tableName = "";
-            String sqlAddPriceDAO = ("INSERT into inputSymbol (,) VALUES(\'"
-                    + inputSymbol.getName() + "\', "
+            String sqlAddPriceDAO = ("INSERT into inputSymbol (" +
+                    "        name,\n" +
+                    "        version,\n" +
+                    "        status,\n" +
+                    "        newsDataCount,\n" +
+                    "        pricesDataCount,\n" +
+                    "        dateBegin,\n" +
+                    "        datePlannedToFillDate,\n" +
+                    "        dateEndsSavedNews,\n" +
+                    "        dateEndsPlannedToFillDate" +
+                    ") VALUES(\'" +
+                    inputSymbol.getName() + "\', \'" +
+                    inputSymbol.getVersion() + "\', " +
+                    inputSymbol.getStatus() + ", " +
+                    inputSymbol.getNewsDataCount() + ", " +
+                    inputSymbol.getPricesDataCount() + ", \'" +
+                    inputSymbol.getDateBegin() + "\', \'" +
+                    inputSymbol.getDatePlannedToFill() + "\', \'" +
+                    inputSymbol.getDateLastSavedNews() + "\', \'" +
+                    inputSymbol.getDateLastSavedPrice() + "\'" +
+                    "); "
             );
-
             PreparedStatement state = getPreparedStatement(sqlAddPriceDAO);
             state.execute();
         } catch (SQLException throwables) {

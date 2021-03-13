@@ -1,6 +1,6 @@
 package org.skytech.observer.api.services;
 
-import org.skytech.observer.console.PerceptronsManager;
+import org.skytech.observer.console.MainConsole;
 import org.skytech.observer.dao.services.ConnectionPool;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ public class ThreadController extends Thread { // Лишний класс?
         }
         // Connection Start i guess...
         try {
-            PerceptronsManager perceptronManager = new PerceptronsManager();
+            MainConsole perceptronManager = new MainConsole();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -61,5 +61,4 @@ Connection Pool вроде как работает
 PreparedStatement тоже работает нормально.
 PreparedStatement работает с табличками (типа курсор контекста) - и соответственно - на одну табличку может
 зариться лишь один PreparedStatement. По этой причине надо закрывать соединения Statement после каждой операции.
-
 * */

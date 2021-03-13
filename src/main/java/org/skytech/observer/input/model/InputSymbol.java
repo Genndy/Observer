@@ -1,6 +1,6 @@
 package org.skytech.observer.input.model;
 
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public class InputSymbol {
     public static final int STATUS_NOT_READY = 0;
@@ -10,47 +10,40 @@ public class InputSymbol {
     public static final int STATUS_NEWS_NOT_READY = 4;
     public static final int STATUS_LOADING = 5;
 
-    String name = "";
-    int newsDataCount = 0;
-    String tableNameNews = "";
-    Date savedNewsBeginsDate;
-    Date savedNewsEndsDate;
-    Date newsPlannedToFillDate;
-    int pricesDataCount = 0;
-    String tableNamePrices = "";
-    Date savedPricesBeginsDate;
-    Date savedPricesEndsDate;
-    Date newsPricesToFillDate;
-    int status = STATUS_NOT_READY;
+    private String name = "";
+    private double version = 0.0;
+    private int newsDataCount = 0;
+    private String tableNameNews = "";
+    private DateTime dateBegin = null;
+    private DateTime dateLastSavedNews = null;
+    private int pricesDataCount = 0;
+    private String tableNamePrices = "";
+    private DateTime dateLastSavedPrice = null;
+
+    private DateTime datePlannedToFill = null;
+    private int status = STATUS_NOT_READY;
 
     private InputSymbol(){
 
     }
-    public InputSymbol(String name, Date savedNewsBeginsDate, Date newsPlannedToFillDate, Date savedPricesBeginsDate, Date newsPricesToFillDate) {
+    public InputSymbol(String name, DateTime savedNewsBeginsDate, DateTime dateBegin, DateTime datePlannedToFill) {
         this.name = name;
-        this.savedNewsBeginsDate = savedNewsBeginsDate;
-        this.newsPlannedToFillDate = newsPlannedToFillDate;
-        this.savedPricesBeginsDate = savedPricesBeginsDate;
-        this.newsPricesToFillDate = newsPricesToFillDate;
+        this.dateBegin = dateBegin;
+        this.datePlannedToFill = datePlannedToFill;
     }
 
     public String getName() {
         return name;
     }
+    public double getVersion() { return version; }
     public String getTableNameNews() {
         return tableNameNews;
     }
     public int getNewsDataCount() {
         return newsDataCount;
     }
-    public Date getSavedNewsBeginsDate() {
-        return savedNewsBeginsDate;
-    }
-    public Date getSavedNewsEndsDate() {
-        return savedNewsEndsDate;
-    }
-    public Date getNewsPlannedToFillDate() {
-        return newsPlannedToFillDate;
+    public DateTime getDateLastSavedNews() {
+        return dateLastSavedNews;
     }
     public String getTableNamePrices() {
         return tableNamePrices;
@@ -58,51 +51,59 @@ public class InputSymbol {
     public int getPricesDataCount() {
         return pricesDataCount;
     }
-    public Date getSavedPricesBeginsDate() {
-        return savedPricesBeginsDate;
+    public DateTime getDateLastSavedPrice() {
+        return dateLastSavedPrice;
     }
-    public Date getSavedPricesEndsDate() {
-        return savedPricesEndsDate;
+    public DateTime getDatePlannedToFill() {
+        return datePlannedToFill;
     }
-    public Date getNewsPricesToFillDate() {
-        return newsPricesToFillDate;
-    }
+    public int getStatus(){ return status; }
+    public DateTime getDateBegin(){ return dateBegin; }
 
-    public void setName(String name) { this.name = name; } //
-    public void setNewsDataCount(int newsDataCount) { this.newsDataCount = newsDataCount; } //
-    public void setTableNameNews(String tableNameNews) { this.tableNameNews = tableNameNews; } //
-    public void setSavedNewsBeginsDate(Date savedNewsBeginsDate) { this.savedNewsBeginsDate = savedNewsBeginsDate; } //
-    public void setSavedNewsEndsDate(Date savedNewsEndsDate) { this.savedNewsEndsDate = savedNewsEndsDate; }
-    public void setNewsPlannedToFillDate(Date newsPlannedToFillDate) { this.newsPlannedToFillDate = newsPlannedToFillDate; }
+    public void setName(String name) { this.name = name; }
+    public void setVersion(double version) { this.version = version; }
+    public void setNewsDataCount(int newsDataCount) { this.newsDataCount = newsDataCount; }
+    public void setTableNameNews(String tableNameNews) { this.tableNameNews = tableNameNews; }
+    public void setDateLastSavedNews(DateTime dateLastSavedNews) { this.dateLastSavedNews = dateLastSavedNews; }
     public void setPricesDataCount(int pricesDataCount) { this.pricesDataCount = pricesDataCount; }
     public void setTableNamePrices(String tableNamePrices) { this.tableNamePrices = tableNamePrices; }
-    public void setSavedPricesBeginsDate(Date savedPricesBeginsDate) { this.savedPricesBeginsDate = savedPricesBeginsDate; }
-    public void setSavedPricesEndsDate(Date savedPricesEndsDate) { this.savedPricesEndsDate = savedPricesEndsDate; }
-    public void setNewsPricesToFillDate(Date newsPricesToFillDate) { this.newsPricesToFillDate = newsPricesToFillDate; }
+    public void setDateLastSavedPrice(DateTime dateLastSavedPrice) { this.dateLastSavedPrice = dateLastSavedPrice; }
+    public void setDatePlannedToFill(DateTime datePlannedToFill) { this.datePlannedToFill = datePlannedToFill; }
     public void setStatus(int status) { this.status = status; }
+    public void setDateBegin(DateTime dateBegin){ this.dateBegin = dateBegin; }
 
-    public static class InputSymbolBuilder{
+    public static InputSymbol.Builder builder(){
+        return new InputSymbol().new Builder();
+    }
+
+    public class Builder {
         InputSymbol inputSymbol;
+        private Builder(){}
         public InputSymbol build(){
-            if((inputSymbol.getName() == null) || inputSymbol.getName().equals("") || inputSymbol.getName().contains(" ")){
+            // Должна быть проверка в базе данных, на наличие
+            if((InputSymbol.this.name == null) || InputSymbol.this.name.equals("") || InputSymbol.this.name.contains(" ")){
                 System.err.println("Не задано имя для InputSymbolBuilder");
                 throw new IllegalArgumentException();
             }
-            inputSymbol.setSavedNewsEndsDate(null);
-            inputSymbol.setSavedPricesEndsDate(null);
-            inputSymbol.setNewsDataCount(0);
-            inputSymbol.setPricesDataCount(0);
-            inputSymbol.setTableNamePrices("");
-            inputSymbol.setTableNameNews("");
-            inputSymbol.setStatus(InputSymbol.STATUS_NOT_READY);
-            return inputSymbol;
+            InputSymbol.this.dateLastSavedNews = dateBegin;
+            InputSymbol.this.dateLastSavedPrice = dateBegin;
+            InputSymbol.this.newsDataCount = 0;
+            InputSymbol.this.pricesDataCount = 0;
+            InputSymbol.this.tableNameNews = name + "-news." + version;
+            InputSymbol.this.tableNamePrices = name + "-price." + version;
+            InputSymbol.this.status = InputSymbol.STATUS_NOT_READY;
+            return InputSymbol.this;
         }
-        public InputSymbolBuilder(){ inputSymbol = new InputSymbol(); }
-        public InputSymbolBuilder setName(String name){ inputSymbol.setName(name); return this; }
-        public InputSymbolBuilder setTableNameNews(String tableNameNews){ inputSymbol.setTableNameNews(tableNameNews); return this; }
-        public InputSymbolBuilder setSavedNewsBeginsDate(Date savedNewsBeginsDate){ inputSymbol.setSavedNewsBeginsDate(savedNewsBeginsDate); return this; }
-        public InputSymbolBuilder setNewsPlannedToFillDate(Date newsPlannedToFillDate){ inputSymbol.setNewsPlannedToFillDate(newsPlannedToFillDate); return this; }
-        public InputSymbolBuilder setSavedPricesBeginsDate(Date savedPricesBeginsDate){ inputSymbol.setSavedPricesBeginsDate(savedPricesBeginsDate); return this; }
-        public InputSymbolBuilder setNewsPricesToFillDate(Date newsPricesToFillDate){ inputSymbol.setNewsPricesToFillDate(newsPricesToFillDate); return this; }
+        public Builder setName(String name){ InputSymbol.this.name = name; return this; }
+        public Builder setVersion(double version){ InputSymbol.this.version = version; return this; }
+        public Builder setDateBeginToRead(DateTime beginsDate){ InputSymbol.this.dateBegin = beginsDate; return this; }
+        public Builder setDatePlannedToFill(DateTime datePlannedToFill){
+            if(datePlannedToFill != null){
+                InputSymbol.this.datePlannedToFill = datePlannedToFill;
+            }else {
+                InputSymbol.this.datePlannedToFill = new DateTime();
+            }
+            return this;
+        }
     }
 }

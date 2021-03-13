@@ -1,4 +1,4 @@
-package org.skytech.observer.input;
+package org.skytech.observer.input.service;
 
 import org.json.JSONException;
 import org.json.JSONObject;

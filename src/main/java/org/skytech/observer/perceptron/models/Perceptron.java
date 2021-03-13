@@ -1,5 +1,5 @@
 package org.skytech.observer.perceptron.models;
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public class Perceptron {
     private String id;
@@ -8,14 +8,14 @@ public class Perceptron {
     private int outputCount;
     private Double[] hiddenLayerModificators;// количество слоёв определяется длиной этого массива
     private String specialization;
-    private Date createdDate;
+    private DateTime createdDate;
     private int generation;
     private double error_degree;
     private String perceptronType;
     private String status;
     public static Object Builder;
 
-    public Perceptron(String id, String name, int inputCount, int outputCount, Double[] hiddenLayerModificators, String specialization, Date createdDate, int generation, double error_degree, String perceptronType, String status) {
+    public Perceptron(String id, String name, int inputCount, int outputCount, Double[] hiddenLayerModificators, String specialization, DateTime createdDate, int generation, double error_degree, String perceptronType, String status) {
         this.id = id;
         this.name = name;
         this.inputCount = inputCount;
@@ -66,10 +66,10 @@ public class Perceptron {
     public void setSpecialization(String specialization) {
         this.specialization = specialization;
     }
-    public Date getCreatedDate() {
+    public DateTime getCreatedDate() {
         return createdDate;
     }
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(DateTime createdDate) {
         this.createdDate = createdDate;
     }
     public int getGeneration() {
@@ -109,7 +109,7 @@ public class Perceptron {
         public Builder setOutputCount(int outputCount) { Perceptron.this.outputCount = outputCount; return this; }
         public Builder setHiddenLayerModificators(Double[] hiddenLayerModificators) { Perceptron.this.hiddenLayerModificators = hiddenLayerModificators; return this; }
         public Builder setSpecialization(String specialization) { Perceptron.this.specialization = specialization; return this; }
-        public Builder setCreatedDate(Date createdDate) { Perceptron.this.createdDate = createdDate; return this; }
+        public Builder setCreatedDate(DateTime createdDate) { Perceptron.this.createdDate = createdDate; return this; }
         public Builder setGeneration(int generation) { Perceptron.this.generation = generation; return this; }
         public Builder setError_degree(double error_degree) { Perceptron.this.error_degree = error_degree; return this; }
         public Builder setPerceptronType(String perceptronType) { Perceptron.this.perceptronType = perceptronType; return this; }
