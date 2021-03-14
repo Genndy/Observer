@@ -17,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class PolygonReader {
+public class PolygonPriceReader {
     DateTime readedDate;
 
     public List<InputDataValue> getInputDataPricesListByDate(DateTime beginDate, DateTime endDate, String name) {

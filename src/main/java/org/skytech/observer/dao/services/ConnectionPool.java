@@ -27,7 +27,7 @@ public class ConnectionPool {
             try {
                 Class.forName("org.sqlite.JDBC");
 //                connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\O&K\\IdeaProjects\\Observer\\testneurolinkdata");
-                connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\O&K\\IdeaProjects\\Observer\\neurolinkdata.sqlite");
+                connection = DriverManager.getConnection("jdbc:sqlite:C:\\Users\\Sasha\\IdeaProjects\\Observer\\neurolinkdata.sqlite");
                 return connection;
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();

@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MarketStackReader {
+public class MarketStackPricesReader {
 
     public void init() throws IOException, JSONException, ParseException {
         JSONObject jsonObject = JSONFromUrlScrapper

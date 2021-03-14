@@ -11,7 +11,8 @@ import java.util.List;
 public class InputDataNewsDAO extends AbstractConnectionController {
     private String tableName;
     private double version;
-    private String sqlArguments = "(text text, " +
+    private String sqlArguments = "(text TEXT, " +
+            "date varchar(20), " +
             "description text, " +
             "source varchar(100), " +
             "url varchar(200), " +
@@ -19,10 +20,22 @@ public class InputDataNewsDAO extends AbstractConnectionController {
             "lang varchar(6), " +
             "symbol varchar(8))";
 
-    public InputDataNewsDAO(String tableName, double version) throws SQLException {
-        this.tableName = tableName;
+    public InputDataNewsDAO(String symbolName, double version) throws SQLException {
+        this.tableName = symbolName + "-news." + version;
         this.version = version;
-        String sql = "CREATE TABLE IF NOT EXIST" + "\'"+ tableName + "-news." + version + "\'" + sqlArguments + ";";
+    }
+
+    public void createTableIfNotExists() throws SQLException {
+
+        String sql = "CREATE TABLE IF NOT EXISTS " + "\'"+ tableName + "\'" + sqlArguments + ";";
+        PreparedStatement statement = getPreparedStatement(sql);
+        statement.execute();
+    }
+
+    public void dropTableIfExists() throws SQLException {
+        String sql = "DROP TABLE IF EXISTS " + "\'" + tableName + "\';";
+        PreparedStatement statement = getPreparedStatement(sql);
+        statement.execute();
     }
 
     public List<InputDataValueDAO> getAll() throws SQLException {
@@ -42,9 +55,12 @@ public class InputDataNewsDAO extends AbstractConnectionController {
 
     public void addInputNews(InputDataNews inputData){ //
         try {
-            String sqlAddPriceDAO = "INSERT into " +
-                    tableName + "_" + version +
+            String textEcraned =inputData.getText().replaceAll("\\'", "\'\'");
+//            textEcraned = textEcraned.replaceAll("\"", "\\\\\"");
+
+            String sqlAddPriceDAO = "INSERT into \'" + tableName + "\'" +
                     "             (text,\n" +
+                    "             date, \n" +
                     "             description,\n" +
                     "             source,\n" +
                     "             url,\n" +
@@ -52,27 +68,21 @@ public class InputDataNewsDAO extends AbstractConnectionController {
                     "             lang,\n" +
                     "             symbol) " +
                     "VALUES(" +
-                    "\'" + parseArrToString(inputData.getText()) + "\', " +
-                    "\'" + inputData.getDescription() + "\', " +
+                    "\'" + textEcraned + "\', " +
+                    "\'" + inputData.getDate().toString() + "\', " +
+                    "\'" + textEcraned + "\', " +
                     "\'" + inputData.getSource() + "\', " +
                     "\'" + inputData.getURL() + "\', " +
                     "\'" + inputData.getHeadTitul() + "\', " +
-                    "\'" + inputData.getLang() + "\', " +
-                    "\'" + tableName + "\' " +
+                    "\'"  + "en" + "\', " +
+                    "\'" + inputData.getSymbol() + "\' " +
                      ");";
             PreparedStatement state = getPreparedStatement(sqlAddPriceDAO);
             state.execute();
+            state.close();
         } catch (SQLException throwables) {
             System.err.println("Ошибка при попытке ввести данные InputPrice");
             throwables.printStackTrace();
         }
-    }
-
-    private String parseArrToString(String[] arr){
-        String str = "";
-        for(int i = 0; i < arr.length; i++){
-            str = str + arr[i] + " ";
-        }
-        return str;
     }
 }

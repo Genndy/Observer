@@ -43,8 +43,20 @@ public class MainConsole {
             trainPerceptron();
         } else if(s.equals("delete")){
             deletePerceptron();
-        } else if(s.equals("start")){
+        } else if(s.equals("start")) {
             startPerceptron();
+        }else if(s.equals("test")){
+            try {
+                String str = consoleListenString("БЛЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯ");
+                String strEcraned = str.replaceAll("\\'", "\\\\'");
+                System.out.println(strEcraned);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            consoleListen();
         } else if(s.equals("show all")) {
             showAllPerceptronList();
         } else if(s.equals("exit")){

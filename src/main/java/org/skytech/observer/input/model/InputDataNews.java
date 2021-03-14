@@ -6,17 +6,18 @@ import org.joda.time.DateTime;
 import java.util.Date;
 
 public class InputDataNews extends InputData {
-    private String[] text;
+    private String text;
     private String description;
     private String source;
     private String url;
     private String headTitul;
-    private String lang;
     private String symbol;
 
-    public InputDataNews(String symbol, String description, DateTime date, String source, String type, String[] text){
+    public InputDataNews(String symbol, String description, DateTime date, String source, String type, String text){
         this.symbol = symbol;
         super.date = date;
+        this.description = description;
+        this.source = source;
         this.text = text;
     }
     public String getSource(){
@@ -28,10 +29,10 @@ public class InputDataNews extends InputData {
     public String getHeadTitul(){
         return headTitul;
     }
-    public String getLang() { return lang; }
-    public String[] text() { return text; }
-    public String[] getText() {
+    public String text() { return text; }
+    public String getText() {
         return text;
     }
     public String getDescription() { return description; }
+    public String getSymbol() { return symbol; }
 }

@@ -13,12 +13,11 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
-import javax.ejb.Singleton;
+
 
 @Configuration
 @ComponentScan("org.skytech.observer")
 @EnableWebMvc
-@Singleton
 @SpringBootConfiguration
 public class SpringConfig implements WebMvcConfigurer {
 

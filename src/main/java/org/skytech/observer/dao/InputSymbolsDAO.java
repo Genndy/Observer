@@ -12,14 +12,14 @@ public class InputSymbolsDAO extends AbstractConnectionController {
     public InputSymbolsDAO() throws SQLException {
         String sqlCreate = "CREATE TABLE IF NOT EXISTS inputSymbol(\n" +
                 "        name varchar(100),\n" +
-                "        version real,\n" +
                 "        status int,\n" +
                 "        newsDataCount int,\n" +
                 "        pricesDataCount int,\n" +
-                "        dateBegin varchar(16),\n" +
-                "        datePlannedToFillDate varchar(16),\n" +
-                "        dateEndsSavedNews varchar(16),\n" +
-                "        dateEndsPlannedToFillDate varchar(16));";
+                "        dateBegin varchar(50),\n" +
+                "        datePlannedToFillDate varchar(50),\n" +
+                "        dateEndsSavedNews varchar(50),\n" +
+                "        dateEndsPlannedToFillDate varchar(50),\n " +
+                " UNIQUE(name));";
         PreparedStatement state = getPreparedStatement(sqlCreate);
         state.execute();
     }
@@ -46,7 +46,6 @@ public class InputSymbolsDAO extends AbstractConnectionController {
             String tableName = "";
             String sqlAddPriceDAO = ("INSERT into inputSymbol (" +
                     "        name,\n" +
-                    "        version,\n" +
                     "        status,\n" +
                     "        newsDataCount,\n" +
                     "        pricesDataCount,\n" +
@@ -55,8 +54,7 @@ public class InputSymbolsDAO extends AbstractConnectionController {
                     "        dateEndsSavedNews,\n" +
                     "        dateEndsPlannedToFillDate" +
                     ") VALUES(\'" +
-                    inputSymbol.getName() + "\', \'" +
-                    inputSymbol.getVersion() + "\', " +
+                    inputSymbol.getName() + "." + inputSymbol.getVersion() + "\', " +
                     inputSymbol.getStatus() + ", " +
                     inputSymbol.getNewsDataCount() + ", " +
                     inputSymbol.getPricesDataCount() + ", \'" +

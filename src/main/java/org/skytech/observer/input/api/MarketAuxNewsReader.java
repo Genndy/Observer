@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
+import java.net.*;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.sun.jndi.ldap.Connection;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONArray;
@@ -21,8 +22,11 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.skytech.observer.input.service.JSONFromUrlScrapper;
 import org.skytech.observer.input.model.InputDataNews;
+import sun.net.www.protocol.http.Handler;
 
-public class MarketAuxReader {
+import static java.net.Proxy.Type.HTTP;
+
+public class MarketAuxNewsReader {
 
     public List<InputDataNews> parseJsonToNewsObject(JSONObject jsonObject, String symbolName) throws JSONException, IOException, ParseException {
         List<InputDataNews> inputDataNewsList = new ArrayList<InputDataNews>();
@@ -32,9 +36,7 @@ public class MarketAuxReader {
             System.out.println(jsonData.toString());
 
             String dateStr = jsonData.getString("published_at");
-//            dateStr = dateStr.replaceFirst("T", " ");
             dateStr = dateStr.replaceFirst("Z", "");
-//            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSSSSS", Locale.ENGLISH);
             DateTime date = DateTime.parse(dateStr);
 
             String symbol = jsonData.getString(symbolName); // will get from...
@@ -43,18 +45,20 @@ public class MarketAuxReader {
             String headTitle = jsonData.getString("title");
             String url = jsonData.getString("url");
             String lang = jsonData.getString("language");
-            String[] text = Jsoup.parse(Jsoup.connect(url).get().text()).text().split(" ");
+            String text = Jsoup.parse(Jsoup.connect(url).get().text()).text();
 
-            InputDataNews inputNews = new InputDataNews(symbol, description, date, source, "акция", text);
-
-            inputDataNewsList.add(inputNews);
-            System.out.println(inputNews.toString());
+//            InputDataNews inputNews = new InputDataNews(symbol, description, date, source, "акция", text);
+//
+  //          inputDataNewsList.add(inputNews);
+//            System.out.println(inputNews.toString());
         }
         return inputDataNewsList;
     }
 
     public JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+        URL urlConn = new URL(url);
         InputStream is = new URL(url).openStream();
+
         try {
             BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
             String jsonText = readAll(rd);
@@ -79,9 +83,10 @@ public class MarketAuxReader {
         try {
         String token = "8z3QJfJCmJgl2tnq1B9pWWHuSGEsWnFzjfigDyUL";
         String dateStr = date.toString().substring(0, 10);
-        String url = "https://api.marketaux.com/v1/news/all?symbols="+name
-                + dateStr + ""
-                + "&filter_entities=true&language=en&api_token=" + token;
+//        String testUrl = "https://api.marketaux.com/v1/news/all?symbols=AAPL,TSLA&filter_entities=true&language=en&api_token=8z3QJfJCmJgl2tnq1B9pWWHuSGEsWnFzjfigDyUL";
+        String url = "https://api.marketaux.com/v1/news/all?symbols="+name + "&published_on=" +
+                dateStr +
+                "&filter_entities=true&language=en&api_token=" + token;
         JSONObject JSONResponse = readJsonFromUrl(url);
         inputDataNewsList = parseJsonToNewsObject(JSONResponse, name);
         } catch (IOException e) {

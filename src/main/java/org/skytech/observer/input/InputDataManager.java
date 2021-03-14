@@ -3,13 +3,12 @@ package org.skytech.observer.input;
 import org.joda.time.DateTime;
 import org.skytech.observer.dao.InputDataNewsDAO;
 import org.skytech.observer.dao.InputDataValueDAO;
-import org.skytech.observer.input.api.MarketAuxReader;
-import org.skytech.observer.input.api.MarketStackReader;
-import org.skytech.observer.input.api.PolygonReader;
+import org.skytech.observer.input.api.MarketAuxNewsReader;
+import org.skytech.observer.input.api.PolygonNewsReader;
+import org.skytech.observer.input.api.PolygonPriceReader;
 import org.skytech.observer.input.model.InputDataNews;
 import org.skytech.observer.input.model.InputDataValue;
 import org.skytech.observer.input.model.InputSymbol;
-import sun.awt.Symbol;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -24,17 +23,17 @@ public class InputDataManager {
 
     private void loadPrices(){
 //        MarketStackReader marketStackReader;
-        PolygonReader polygonReader;
+        PolygonPriceReader polygonPriceReader;
         InputDataValueDAO inputDataValueDAO;
         int totalDayToLoadCount = getTotalDayToLoadCount();
         try {
             System.out.println("Инициализация загрузки котировки");
-            polygonReader = new PolygonReader();
+            polygonPriceReader = new PolygonPriceReader();
             inputDataValueDAO = new InputDataValueDAO();
             inputDataValueDAO.deleteTable(symbol.getName(), symbol.getVersion());
             inputDataValueDAO.createTable(symbol.getName(), symbol.getVersion());
   //          DateTime date = symbol.getDateLastSavedPrice(); // init first, or...
-            List<InputDataValue> readedInputDataValues = polygonReader.getInputDataPricesListByDate(symbol.getDateBegin(), symbol.getDatePlannedToFill(), symbol.getName());
+            List<InputDataValue> readedInputDataValues = polygonPriceReader.getInputDataPricesListByDate(symbol.getDateBegin(), symbol.getDatePlannedToFill(), symbol.getName());
             for (InputDataValue readedInputDataValue : readedInputDataValues) {
                 inputDataValueDAO.addInputPrice(readedInputDataValue);
 //                date = date.plusDays(1); // Дата получения
@@ -46,14 +45,16 @@ public class InputDataManager {
 
     private void loadNews(){
         InputDataNewsDAO inputDataNewsDAO;
-        MarketAuxReader marketAuxReader;
+        PolygonNewsReader polygonNewsReader;
         int totalDayToLoadCount = getTotalDayToLoadCount();
         try {
-            marketAuxReader = new MarketAuxReader();
-            inputDataNewsDAO = new InputDataNewsDAO(symbol.getName(), 1.0);
+            polygonNewsReader = new PolygonNewsReader();
+            inputDataNewsDAO = new InputDataNewsDAO(symbol.getName(), symbol.getVersion());
+            inputDataNewsDAO.dropTableIfExists();
+            inputDataNewsDAO.createTableIfNotExists();
             DateTime date = symbol.getDateLastSavedNews(); // init first, or...
-            for(int i = 0; i < totalDayToLoadCount; i++){ //
-                List<InputDataNews> readedInputDataNewsList = marketAuxReader.getInputDataNewsListByDate(date, symbol.getName());
+            for(int i = 0; i < 1; i++){ //
+                List<InputDataNews> readedInputDataNewsList = polygonNewsReader.getInputDataNewsListByDate(i, symbol.getName());
                 for(int j = 0; j < readedInputDataNewsList.size(); j++){
                     inputDataNewsDAO.addInputNews(readedInputDataNewsList.get(j));
                 }

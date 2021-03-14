@@ -39,6 +39,7 @@ public class InputDataValueDAO extends AbstractConnectionController {
                     inputPrice.getValue() + ");";
             PreparedStatement state = getPreparedStatement(sqlAddPriceDAO);
             state.execute();
+            state.close();
         } catch (SQLException throwables) {
             System.err.println("Ошибка при попытке ввести данные InputPrice");
             throwables.printStackTrace();
@@ -48,7 +49,7 @@ public class InputDataValueDAO extends AbstractConnectionController {
     public void createTable(String symbolName, double version){
         try{
             this.tableName = symbolName + "-price." + version;
-            String sql = "CREATE TABLE IF NOT EXISTS" + "\'"+ tableName + "\'" + sqlArguments + ";";
+            String sql = "CREATE TABLE IF NOT EXISTS" + " \'"+ tableName + "\'"+ sqlArguments +";";
             PreparedStatement state = getPreparedStatement(sql);
             state.execute();
         }catch (SQLException e){
@@ -58,7 +59,8 @@ public class InputDataValueDAO extends AbstractConnectionController {
 
     public void deleteTable(String symbolName, double version){
         try{
-            String sql = "DROP TABLE IF EXISTS\'" + "\'"+ tableName + "\'" + "\';";
+            this.tableName = symbolName + "-price." + version;
+            String sql = "DROP TABLE IF EXISTS \'" + tableName + "\';";
             PreparedStatement state = getPreparedStatement(sql);
             state.execute();
         }catch (SQLException e){
