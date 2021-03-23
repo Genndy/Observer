@@ -1,11 +1,13 @@
 package org.skytech.observer.dao;
 
+import org.joda.time.DateTime;
 import org.skytech.observer.dao.services.AbstractConnectionController;
 import org.skytech.observer.input.model.InputDataValue;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InputDataValueDAO extends AbstractConnectionController {
@@ -15,13 +17,18 @@ public class InputDataValueDAO extends AbstractConnectionController {
     public InputDataValueDAO() throws SQLException {
     }
 
-    public List<InputDataValueDAO> getAll(String tableName) throws SQLException {
+    public List<InputDataValue> getAll(String tableName) throws SQLException {
         try{
+            List<InputDataValue> inputValues = new ArrayList<InputDataValue>();
             String sql = "SELECT * FROM " + tableName + ";";
             PreparedStatement state = getPreparedStatement(sql);
             ResultSet resultSet = state.getResultSet();
-            for(int i = 0; i < resultSet.getFetchSize(); i++){
+            while(resultSet.next()){
+                DateTime date = DateTime.parse(resultSet.getString("date"));
+                double value = resultSet.getDouble("value");
+                inputValues.add(new InputDataValue(date, value));
             }
+            return inputValues;
         }catch(SQLException e) {
             System.err.println("Ошибка при попытке достать данные InputPrice с sqlite");
             e.getStackTrace();

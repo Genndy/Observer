@@ -1,11 +1,13 @@
 package org.skytech.observer.dao;
 
+import org.joda.time.DateTime;
 import org.skytech.observer.dao.services.AbstractConnectionController;
 import org.skytech.observer.input.model.InputDataNews;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InputDataNewsDAO extends AbstractConnectionController {
@@ -16,7 +18,7 @@ public class InputDataNewsDAO extends AbstractConnectionController {
             "description text, " +
             "source varchar(100), " +
             "url varchar(200), " +
-            "head_titul text, " +
+            "head_title text, " +
             "lang varchar(6), " +
             "symbol varchar(8))";
 
@@ -38,13 +40,25 @@ public class InputDataNewsDAO extends AbstractConnectionController {
         statement.execute();
     }
 
-    public List<InputDataValueDAO> getAll() throws SQLException {
+    public List<InputDataNews> getAll() throws SQLException {
         try{
+            List<InputDataNews> inputDataNews = new ArrayList<InputDataNews>();
             String sql = "SELECT * FROM symbols;";
             PreparedStatement state = getPreparedStatement(sql);
-            ResultSet resultSet = state.getResultSet();
-            for(int i = 0; i < resultSet.getFetchSize(); i++){
+            ResultSet resultSet = state.executeQuery();
+            while(resultSet.next()){
+                String text = resultSet.getString("text");
+                DateTime date = DateTime.parse(resultSet.getString("date"));
+                String description = resultSet.getString("description");
+                String source = resultSet.getString("source");
+                String url = resultSet.getString("url");
+                String headTitle = resultSet.getString("head_title");
+                String lang = resultSet.getString("lang");
+                String symbol = resultSet.getString("symbol");
+                InputDataNews inputDataNew = new InputDataNews(symbol, description, date, source, url, headTitle, text);
+                inputDataNews.add(inputDataNew);
             }
+            return inputDataNews;
         }catch(SQLException e) {
             System.err.println("Ошибка при попытке достать данные symbols с sqlite");
             e.getStackTrace();

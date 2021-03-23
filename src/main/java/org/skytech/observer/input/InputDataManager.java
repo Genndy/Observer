@@ -65,7 +65,6 @@ public class InputDataManager {
         }
     }
 
-    // Рассчёт дней
     private int getTotalDayToLoadCount(){
         long dateBegin = symbol.getDateBegin().getMillis();
         long datePlannedToFill = symbol.getDatePlannedToFill().getMillis();

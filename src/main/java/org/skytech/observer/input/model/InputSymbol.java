@@ -85,24 +85,47 @@ public class InputSymbol {
                 System.err.println("Не задано имя для InputSymbolBuilder");
                 throw new IllegalArgumentException();
             }
-            InputSymbol.this.dateLastSavedNews = dateBegin;
-            InputSymbol.this.dateLastSavedPrice = dateBegin;
-            InputSymbol.this.newsDataCount = 0;
-            InputSymbol.this.pricesDataCount = 0;
+            if(InputSymbol.this.dateLastSavedNews == null){
+                InputSymbol.this.dateLastSavedNews = dateBegin;
+            }
+            if(InputSymbol.this.dateLastSavedPrice == null){
+                InputSymbol.this.dateLastSavedPrice = dateBegin;
+            }
+
             InputSymbol.this.tableNameNews = name + "-news." + version;
             InputSymbol.this.tableNamePrices = name + "-price." + version;
-            InputSymbol.this.status = InputSymbol.STATUS_NOT_READY;
             return InputSymbol.this;
         }
         public Builder setName(String name){ InputSymbol.this.name = name; return this; }
         public Builder setVersion(double version){ InputSymbol.this.version = version; return this; }
         public Builder setDateBeginToRead(DateTime beginsDate){ InputSymbol.this.dateBegin = beginsDate; return this; }
         public Builder setDatePlannedToFill(DateTime datePlannedToFill){
-            if(datePlannedToFill != null){
+        if(datePlannedToFill != null){
                 InputSymbol.this.datePlannedToFill = datePlannedToFill;
             }else {
                 InputSymbol.this.datePlannedToFill = new DateTime();
             }
+            return this;
+        }
+// *****
+        public Builder setStatus(int status) {
+            InputSymbol.this.status = status;
+            return this;
+        }
+        public Builder setDateLastSavedNews(DateTime time) {
+            InputSymbol.this.dateLastSavedNews = time;
+            return this;
+        }
+        public Builder setDateLastSavedPrices(DateTime time) {
+            InputSymbol.this.dateLastSavedPrice = time;
+            return this;
+        }
+        public Builder setNewsDataCount(int count){
+            InputSymbol.this.newsDataCount = count;
+            return this;
+        }
+        public Builder setPricesDataCount(int count){
+            InputSymbol.this.pricesDataCount = count;
             return this;
         }
     }

@@ -1,5 +1,7 @@
 package org.skytech.observer.dao;
 
+import jdk.internal.util.xml.impl.Input;
+import org.joda.time.DateTime;
 import org.skytech.observer.dao.services.AbstractConnectionController;
 import org.skytech.observer.input.model.InputSymbol;
 import java.sql.PreparedStatement;
@@ -10,18 +12,68 @@ import java.util.List;
 
 public class InputSymbolsDAO extends AbstractConnectionController {
     public InputSymbolsDAO() throws SQLException {
-        String sqlCreate = "CREATE TABLE IF NOT EXISTS inputSymbol(\n" +
-                "        name varchar(100),\n" +
-                "        status int,\n" +
-                "        newsDataCount int,\n" +
-                "        pricesDataCount int,\n" +
-                "        dateBegin varchar(50),\n" +
-                "        datePlannedToFillDate varchar(50),\n" +
-                "        dateEndsSavedNews varchar(50),\n" +
-                "        dateEndsPlannedToFillDate varchar(50),\n " +
-                " UNIQUE(name));";
-        PreparedStatement state = getPreparedStatement(sqlCreate);
-        state.execute();
+        createTableIfNotExist();
+    }
+
+    public void deleteByNameAndVersion(String name, double version){
+        String sql = "DELETE FROM inputSymbol WHERE name = '" + name + "', version = " + version + ";";
+        PreparedStatement state = getPreparedStatement(sql);
+        try {
+            state.execute();
+            state.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    public void createTableIfNotExist() throws SQLException {
+        String sql = "CREATE TABLE IF NOT EXISTS inputSymbol(" +
+                "name varchar(100), \n" +
+                "version real, \n" +
+                "status int, \n" +
+                "newsDataCount int, \n" +
+                "pricesDataCount int, \n" +
+                "dateBegin varchar(16), \n" +
+                "datePlannedToFill varchar(16), \n" +
+                "dateLastSavedNews varchar(16), \n" +
+                "dateLastSavedPrice varchar(16));";
+        PreparedStatement preparedStatement = getPreparedStatement(sql);
+        preparedStatement.execute();
+        preparedStatement.close();
+    }
+
+    public InputSymbol getInputSymbolById(String name, double version) throws SQLException {
+        String sql = "SELECT * FROM inputSymbol WHERE name = '" + name + "', version = " + version + ";";
+        PreparedStatement state = getPreparedStatement(sql);
+        ResultSet resultSet = state.getResultSet();
+        state.close();
+        InputSymbol symbol = InputSymbol.builder()
+                .setName(resultSet.getString("name"))
+                .setVersion(resultSet.getDouble("version"))
+                .setStatus(resultSet.getInt("status"))
+                .setNewsDataCount(resultSet.getInt("newsDataCount"))
+                .setPricesDataCount(resultSet.getInt("pricesDataCount"))
+                .setDateBeginToRead(DateTime.parse(resultSet.getString("dateBegin")))
+                .setDatePlannedToFill(DateTime.parse(resultSet.getString("datePlannedToFillDate")))
+                .setDateLastSavedNews(DateTime.parse(resultSet.getString("dateEndsSavedNews")))
+                .setDateLastSavedPrices(DateTime.parse(resultSet.getString("dateEndsSavedPrices"))).build();
+        return symbol;
+    }
+
+    public void updateInputSymbolDAO(InputSymbol inputSymbol) throws SQLException {
+        String sql = "UPDATE inputSymbol \n" +
+                "status = '" + inputSymbol.getStatus() + "', \n" +
+                "newsDataCount = " + inputSymbol.getStatus() + ", \n" +
+                "pricesDataCount = " + inputSymbol.getStatus() + ", \n" +
+                "dateBegin = '" + inputSymbol.getStatus() + "', \n" +
+                "datePlannedToFillDate = '" + inputSymbol.getStatus() + "', \n" +
+                "dateLastSavedNews = '" + inputSymbol.getStatus() + "', \n" +
+                "dateLastSavedPrices = '" + inputSymbol.getStatus() + "' \n" +
+                "WHERE name = '" + inputSymbol.getName() + "', " +
+                "version = " + inputSymbol.getVersion() + ";";
+        PreparedStatement preparedStatement = getPreparedStatement(sql);
+        preparedStatement.execute();
+        preparedStatement.close();
     }
 
     public List<InputSymbol> getAll() throws SQLException {
@@ -30,15 +82,26 @@ public class InputSymbolsDAO extends AbstractConnectionController {
             String sql = "SELECT * FROM symbols;";
             PreparedStatement state = getPreparedStatement(sql);
             ResultSet resultSet = state.getResultSet();
-            for(int i = 0; i < resultSet.getFetchSize(); i++){
-//                InputSymbol symbol = new InputSymbol.builder().setName("").build();
+            while(resultSet.next()){
+                InputSymbol symbol = InputSymbol.builder()
+                        .setName(resultSet.getString("name"))
+                        .setVersion(resultSet.getDouble("version"))
+                        .setStatus(resultSet.getInt("status"))
+                        .setNewsDataCount(resultSet.getInt("newsDataCount"))
+                        .setPricesDataCount(resultSet.getInt("pricesDataCount"))
+                        .setDateBeginToRead(DateTime.parse(resultSet.getString("dateBegin")))
+                        .setDatePlannedToFill(DateTime.parse(resultSet.getString("datePlannedToFillDate")))
+                        .setDateLastSavedNews(DateTime.parse(resultSet.getString("dateLastSavedNews")))
+                        .setDateLastSavedPrices(DateTime.parse(resultSet.getString("dateLastSavedPrices"))).build();
+                symbols.add(symbol);
             }
+            return symbols;
         }catch(SQLException e) {
             System.err.println("Ошибка при попытке достать данные symbols с sqlite");
             e.getStackTrace();
             connection.close();
         }
-        return null;
+        throw new SQLException();
     }
 
     public void addInputSymbolDAO(InputSymbol inputSymbol){ //
@@ -46,22 +109,24 @@ public class InputSymbolsDAO extends AbstractConnectionController {
             String tableName = "";
             String sqlAddPriceDAO = ("INSERT into inputSymbol (" +
                     "        name,\n" +
+                    "        version,\n" +
                     "        status,\n" +
                     "        newsDataCount,\n" +
                     "        pricesDataCount,\n" +
                     "        dateBegin,\n" +
-                    "        datePlannedToFillDate,\n" +
-                    "        dateEndsSavedNews,\n" +
-                    "        dateEndsPlannedToFillDate" +
-                    ") VALUES(\'" +
-                    inputSymbol.getName() + "." + inputSymbol.getVersion() + "\', " +
-                    inputSymbol.getStatus() + ", " +
-                    inputSymbol.getNewsDataCount() + ", " +
-                    inputSymbol.getPricesDataCount() + ", \'" +
-                    inputSymbol.getDateBegin() + "\', \'" +
-                    inputSymbol.getDatePlannedToFill() + "\', \'" +
-                    inputSymbol.getDateLastSavedNews() + "\', \'" +
-                    inputSymbol.getDateLastSavedPrice() + "\'" +
+                    "        datePlannedToFill,\n" +
+                    "        dateLastSavedNews,\n" +
+                    "        dateLastSavedPrice" +
+                    ") VALUES('" +
+                    inputSymbol.getName() + "', " +
+                    inputSymbol.getVersion() + ", '" +
+                    inputSymbol.getStatus() + "', '" +
+                    inputSymbol.getNewsDataCount() + "', '" +
+                    inputSymbol.getPricesDataCount() + "', '" +
+                    inputSymbol.getDateBegin() + "', '" +
+                    inputSymbol.getDatePlannedToFill() + "', '" +
+                    inputSymbol.getDateLastSavedNews() + "', '" +
+                    inputSymbol.getDateLastSavedPrice() + "'" +
                     "); "
             );
             PreparedStatement state = getPreparedStatement(sqlAddPriceDAO);

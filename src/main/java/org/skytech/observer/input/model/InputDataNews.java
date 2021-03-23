@@ -13,7 +13,7 @@ public class InputDataNews extends InputData {
     private String headTitul;
     private String symbol;
 
-    public InputDataNews(String symbol, String description, DateTime date, String source, String type, String text){
+    public InputDataNews(String symbol, String description, DateTime date, String source, String url, String headTitle, String text){
         this.symbol = symbol;
         super.date = date;
         this.description = description;
@@ -29,7 +29,6 @@ public class InputDataNews extends InputData {
     public String getHeadTitul(){
         return headTitul;
     }
-    public String text() { return text; }
     public String getText() {
         return text;
     }

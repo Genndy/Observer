@@ -1,39 +1,47 @@
 package org.skytech.observer;
 
-import org.joda.time.DateTime;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 import org.skytech.observer.console.MainConsole;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 // @SpringBootApplication
 public class Application {
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
     public static void main(String[] args) throws SQLException, IOException {
-        System.out.println("Step by step... not a whole project, but - a piece... ");
-
-/*
-        String url = "https://polygon.io/aaaaaaa";
-        Connection conn = Jsoup.connect(url).ignoreHttpErrors(true);
-
-        int status = conn.execute().statusCode();
-        if(status > 199 && status < 300){
-            System.out.println(status);
-            Jsoup.connect(url).response().statusCode();
-            String text = Jsoup.parse(Jsoup.connect(url).get().text()).text();
-            System.out.println(text);
-        }else {
-            System.out.println(status);
-            System.out.println("вжух");
+        System.out.println("Let's go!");
+//        MainConsole mainConsole = new MainConsole();
+//        mainConsole.consoleListen();
+        for(double i = -10; i <= 10; i++){
+            double a = (i / 10);
+            double result = (1 / (1 + Math.exp(-a)));
+            System.out.println(a +": " + result);
         }
-*/
+        consoleListenDouble("Введите число");
+    }
 
-        MainConsole mainConsole = new MainConsole();
-        mainConsole.consoleListen();
+
+    private static void consoleListenDouble(String message) throws IOException{
+        System.out.println(message);
+        try{
+            String s = "";
+            s = br.readLine();
+            double a = Double.parseDouble(s);
+//            double exp = 2.718;
+            double result = 1 / (1 + Math.exp(-a));
+            System.out.println(result);
+            consoleListenDouble("Again...");
+//            return Double.parseDouble(s);
+        }catch (IOException e){
+            e.getStackTrace();
+            consoleListenDouble("Введите число");
+        }catch (NumberFormatException e){
+            System.err.println("Неверный формат ввода значения типа double");
+            e.fillInStackTrace();
+        }
+        throw new IOException();
     }
 }

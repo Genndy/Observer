@@ -10,12 +10,28 @@ public class Perceptron {
     private String specialization;
     private DateTime createdDate;
     private int generation;
-    private double error_degree;
+    private double errorDegree;
     private String perceptronType;
     private String status;
     public static Object Builder;
 
-    public Perceptron(String id, String name, int inputCount, int outputCount, Double[] hiddenLayerModificators, String specialization, DateTime createdDate, int generation, double error_degree, String perceptronType, String status) {
+    @Override
+    public String toString(){
+        String str ="id:" + id + "\n" +
+                "name: " + name + "\n" +
+                "inputCount: " + inputCount + "\n" +
+                "outputCount: " + outputCount + "\n" +
+                "hiddenLayerModificators: " + hiddenLayerModificators + "\n" +
+                "specialization: " + specialization + "\n" +
+                "createdDate: " + createdDate + "\n" +
+                "generation: " + generation + "\n" +
+                "errorDegree: " + errorDegree + "\n" +
+                "perceptronType: " + perceptronType + "\n" +
+                "status: " + status + "\n";
+        return str;
+    }
+
+    public Perceptron(String id, String name, int inputCount, int outputCount, Double[] hiddenLayerModificators, String specialization, DateTime createdDate, int generation, double errorDegree, String perceptronType, String status) {
         this.id = id;
         this.name = name;
         this.inputCount = inputCount;
@@ -24,7 +40,7 @@ public class Perceptron {
         this.specialization = specialization;
         this.createdDate = createdDate;
         this.generation = generation;
-        this.error_degree = error_degree;
+        this.errorDegree = errorDegree;
         this.perceptronType = perceptronType;
         this.status = status;
     }
@@ -78,11 +94,11 @@ public class Perceptron {
     public void setGeneration(int generation) {
         this.generation = generation;
     }
-    public double getError_degree() {
-        return error_degree;
+    public double getErrorDegree() {
+        return errorDegree;
     }
-    public void setError_degree(double error_degree) {
-        this.error_degree = error_degree;
+    public void setErrorDegree(double errorDegree) {
+        this.errorDegree = errorDegree;
     }
     public String getPerceptronType() {
         return perceptronType;
@@ -111,7 +127,7 @@ public class Perceptron {
         public Builder setSpecialization(String specialization) { Perceptron.this.specialization = specialization; return this; }
         public Builder setCreatedDate(DateTime createdDate) { Perceptron.this.createdDate = createdDate; return this; }
         public Builder setGeneration(int generation) { Perceptron.this.generation = generation; return this; }
-        public Builder setError_degree(double error_degree) { Perceptron.this.error_degree = error_degree; return this; }
+        public Builder setErrorDegree(double error_degree) { Perceptron.this.errorDegree = error_degree; return this; }
         public Builder setPerceptronType(String perceptronType) { Perceptron.this.perceptronType = perceptronType; return this; }
         public Builder setStatus(String status) { Perceptron.this.status = status; return this; }
         public Perceptron build(){

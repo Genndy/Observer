@@ -1,5 +1,6 @@
 package org.skytech.observer.console;
 
+import com.sun.istack.internal.NotNull;
 import org.joda.time.DateTime;
 import org.skytech.observer.dao.*;
 import org.skytech.observer.dao.services.ConnectionPool;
@@ -11,9 +12,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 public class MainConsole {
@@ -35,6 +35,12 @@ public class MainConsole {
             showHelp();
         } else if(s.equals("create perceptron")){
             createPerceptron();
+        } else if(s.equals("show all perceptron")){
+            try {
+                showAllPerceptrons();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
         } else if(s.equals("create symbol")){
             createSymbol();
         } else if(s.equals("show symbols")){
@@ -47,15 +53,15 @@ public class MainConsole {
             startPerceptron();
         }else if(s.equals("test")){
             try {
-                String str = consoleListenString("БЛЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯЯ");
-                String strEcraned = str.replaceAll("\\'", "\\\\'");
-                System.out.println(strEcraned);
-
-            } catch (Exception e) {
-                e.printStackTrace();
+                ArrayList<Double> inputs = new ArrayList<>();
+                inputs.add(0.6);
+                inputs.add(0.0);
+                inputs.add(0.0);
+                inputs.add(0.2);
+                stepTrainTest(weightsDAO.getAll(perDAO.getAll().get(0)), inputs, perDAO.getAll().get(0).getOutputCount());
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
-
-
             consoleListen();
         } else if(s.equals("show all")) {
             showAllPerceptronList();
@@ -142,7 +148,7 @@ public class MainConsole {
                     .setSpecialization(consoleListenString("Введите назначение перцептрона"))
                     .setCreatedDate(DateTime.now())
                     .setGeneration(0)
-                    .setError_degree(1.0)
+                    .setErrorDegree(1.0)
                     .setPerceptronType(consoleListenString("Введите название типа перцептрона"))
                     .setStatus("not ready to use")
                     .build();
@@ -151,17 +157,25 @@ public class MainConsole {
             consoleListen();
         }
         System.out.println("Перцептрон создан");
-        // Запись в базе данных!
-        perDAO.addPerceptron(perceptron);
+        perDAO.addPerceptron(perceptron); // Запись в базе данных!
         try{
+            weightsDAO.dropTableIfExists(perceptron.getId());
+            weightsDAO.createTableIfNotExists(perceptron.getId());
             weightsDAO.addWeights(perceptron);
         }catch (SQLException e){
-
             System.err.println("Ошибка при попытке создать веса для перцептрона - удаление перцептрона с базы данных");
             perDAO.deletePerceptronById(perceptron.getId());
             consoleListen();
         }
         System.out.println("Перцептрон записан в базу данных");
+        consoleListen();
+    }
+
+    public void showAllPerceptrons() throws SQLException {
+        List<Perceptron> perceptrons = perDAO.getAll();
+        for(Perceptron perceptron : perceptrons){
+            System.out.println(perceptron);
+        }
         consoleListen();
     }
 
@@ -283,5 +297,70 @@ public class MainConsole {
     }
     public void showAllPerceptronList(){
 
+    }
+
+    private void stepTrain(ArrayList<ArrayList<Double>> weights, ArrayList<Double> inputs, Double[] modifier, int outputCount){
+        double activationFunction = 0.5;
+        ArrayList<ArrayList<Double>> allSignals = new ArrayList<>();
+        int allSinapsCount = 0;
+        for (ArrayList<Double> asd  : weights){ for (Double d: asd){ allSinapsCount++; } }
+        allSignals.add(inputs);
+        int signalsOutCount = 0;
+        for(int i = 0; i < weights.size(); i++){
+            if(i == weights.size() - 1) {
+                signalsOutCount = outputCount;
+            } else {
+                signalsOutCount = (int)((weights.get(i).size() / signalsOutCount));
+            }
+            double summ = 0.0;
+            for(int j = 0; j < signalsOutCount; j++) {
+                ArrayList<Double> newInputSignals = new ArrayList<>();
+                for (Double signalIn : allSignals.get(i)) {
+                    for (Double weight : weights.get(i)) {
+                        summ = +signalIn * weight;
+                    }
+                    newInputSignals.add(summ / allSignals.get(i).size());
+                }
+                allSignals.add(newInputSignals);
+            }
+        }
+    }
+
+    private void stepTrainTest(ArrayList<ArrayList<Double>> weights, ArrayList<Double> inputs, int outputCount){
+        double activationFunction= 0.5;
+        ArrayList<ArrayList<Double>> allSignals = new ArrayList<>();
+        allSignals.add(inputs);
+
+        for(int i = 0; i < weights.size(); i++){ // Layers
+            int previusLayerNeuronCount = allSignals.get(i).size();
+            int currentLayerNeuronCount = 0;
+            if(i == weights.size() - 1){
+                currentLayerNeuronCount = outputCount;
+            }else {
+                currentLayerNeuronCount = weights.get(i).size() / previusLayerNeuronCount;
+            }
+            int weightsCount = 0;
+            allSignals.add(new ArrayList<Double>());
+            for(int j = 0; j < currentLayerNeuronCount; j++){ // Every neuron
+                double summ = 0.0;
+                for(Double inputSignal : allSignals.get(i)){
+                    // Вроде проверка на функции активации должна быть тут
+                    if((inputSignal * weights.get(i).get(weightsCount) > 0.5)){
+                        summ += inputSignal * weights.get(i).get(weightsCount);
+                    }else {
+                        summ += 0;
+                    }
+                    weightsCount ++;
+                }
+                for(double h = -10; h <= 10; h++){
+                    double a = (h / 10);
+                    double result = (1 / (1 + Math.exp(-a)));
+                    System.out.println(a +": " + result);
+                }
+//                allSignals.get(i+1).add(summ / allSignals.get(i).size());
+                allSignals.get(i+1).add(1 / (1 + Math.exp(-summ)));
+            }
+        }
+        System.out.println(allSignals);
     }
 }
